@@ -35,7 +35,14 @@ from src.engine import (
     check_ffmpeg_available
 )
 from src.downloader import VideoDownloader
-from src.gui.widgets import create_default_placeholder_image, attach_context_menu, setup_app_icon, show_app_notification
+from src.gui.widgets import (
+    create_default_placeholder_image,
+    attach_context_menu,
+    setup_app_icon,
+    show_app_notification,
+    get_clipboard_text,
+    get_inner_widget
+)
 
 
 class DownloaderApp(ctk.CTk):
@@ -189,6 +196,7 @@ class DownloaderApp(ctk.CTk):
         self.url_input_frame.grid_columnconfigure(0, weight=1)
         self.url_input_frame.grid_columnconfigure(1, weight=0)
         self.url_input_frame.grid_columnconfigure(2, weight=0)
+        self.url_input_frame.grid_columnconfigure(3, weight=0)
 
         self.url_entry = ctk.CTkEntry(
             self.url_input_frame,
@@ -203,6 +211,20 @@ class DownloaderApp(ctk.CTk):
         self.url_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
         attach_context_menu(self.url_entry)
 
+        self.paste_btn = ctk.CTkButton(
+            self.url_input_frame,
+            text="📋 Pegar",
+            font=ctk.CTkFont(family=FONT_FAMILY, size=13, weight="bold"),
+            width=85,
+            height=40,
+            fg_color=COLOR_ACCENT,
+            hover_color=COLOR_ACCENT_HOVER,
+            text_color="#FFFFFF",
+            corner_radius=6,
+            command=self.paste_url_from_clipboard
+        )
+        self.paste_btn.grid(row=0, column=1, sticky="e", padx=(0, 8))
+
         self.clear_btn = ctk.CTkButton(
             self.url_input_frame,
             text="X",
@@ -215,7 +237,7 @@ class DownloaderApp(ctk.CTk):
             corner_radius=6,
             command=self.clear_url_entry
         )
-        self.clear_btn.grid(row=0, column=1, sticky="e", padx=(0, 8))
+        self.clear_btn.grid(row=0, column=2, sticky="e", padx=(0, 8))
 
         self.platform_badge = ctk.CTkLabel(
             self.url_input_frame,
@@ -227,7 +249,7 @@ class DownloaderApp(ctk.CTk):
             width=140,
             corner_radius=6
         )
-        self.platform_badge.grid(row=0, column=2, sticky="e")
+        self.platform_badge.grid(row=0, column=3, sticky="e")
 
         # Tarjeta de Vista Previa (Fila 3)
         self.preview_card = ctk.CTkFrame(
@@ -618,6 +640,26 @@ class DownloaderApp(ctk.CTk):
         self.on_url_change()
         self.clear_preview()
         self.last_preview_url = ""
+
+    def paste_url_from_clipboard(self):
+        """Pega el texto del portapapeles del sistema (de navegadores u otras aplicaciones) en el campo de URL."""
+        try:
+            text = get_clipboard_text(self.url_entry).strip()
+            if not text:
+                show_app_notification(self, "No se encontró texto en el portapapeles para pegar.", error=True)
+                return
+
+            self.url_entry.delete(0, 'end')
+            self.url_entry.insert(0, text)
+            self.on_url_change()
+
+            try:
+                inner = get_inner_widget(self.url_entry)
+                inner.icursor('end')
+            except Exception:
+                pass
+        except Exception as e:
+            show_app_notification(self, f"Error al pegar desde el portapapeles: {e}", error=True)
 
     def trigger_preview_load(self):
         """Inicia la carga de metadatos del video en segundo plano (debounced)."""
