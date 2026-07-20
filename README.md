@@ -96,7 +96,11 @@ python app.py
 Para distribuir la aplicación como un único archivo `.exe` que se puede llevar en un USB o compartir sin necesidad de instalar Python, ejecuta:
 
 ```powershell
-pyinstaller --onefile --windowed --name="UniversalVideoDownloader" app.py
+# Opción 1: Usando el archivo de configuración (.spec) preconfigurado (recomendado):
+pyinstaller UniversalVideoDownloader.spec
+
+# Opción 2: Comando directo con ícono personalizado:
+pyinstaller --onefile --windowed --icon="icon.ico" --name="UniversalVideoDownloader" app.py
 ```
 * Una vez finalizado el proceso, encontrarás tu ejecutable portable en la carpeta `dist/UniversalVideoDownloader.exe`.
 * Al transferir este `.exe` a cualquier computadora limpia, la función autogestionada del motor descargará `yt-dlp.exe` y `ffmpeg.exe` en la carpeta donde se encuentre el programa. ¡Totalmente portable!

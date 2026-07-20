@@ -35,7 +35,7 @@ from src.engine import (
     check_ffmpeg_available
 )
 from src.downloader import VideoDownloader
-from src.gui.widgets import create_default_placeholder_image
+from src.gui.widgets import create_default_placeholder_image, attach_context_menu, setup_app_icon
 
 
 class DownloaderApp(ctk.CTk):
@@ -52,6 +52,7 @@ class DownloaderApp(ctk.CTk):
         self.resizable(True, True)
         self.minsize(780, 760)
         self.configure(fg_color=COLOR_BG_MAIN)
+        setup_app_icon(self, get_app_dir())
 
         # Variables de estado
         self.download_path = ctk.StringVar(value=get_default_download_dir())
@@ -200,6 +201,7 @@ class DownloaderApp(ctk.CTk):
             placeholder_text_color="#64748B"
         )
         self.url_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        attach_context_menu(self.url_entry)
 
         self.clear_btn = ctk.CTkButton(
             self.url_input_frame,
@@ -365,6 +367,7 @@ class DownloaderApp(ctk.CTk):
             text_color=COLOR_TEXT_MUTED
         )
         self.path_entry.grid(row=1, column=0, sticky="ew", padx=(0, 8))
+        attach_context_menu(self.path_entry)
 
         self.browse_btn = ctk.CTkButton(
             self.dest_frame,
@@ -410,6 +413,7 @@ class DownloaderApp(ctk.CTk):
             text_color=COLOR_TEXT_MUTED
         )
         self.cookies_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8))
+        attach_context_menu(self.cookies_entry)
 
         self.cookies_btn = ctk.CTkButton(
             self.cookies_frame,

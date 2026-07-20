@@ -2,6 +2,8 @@
 Componentes visuales reutilizables, generador de miniaturas ilustradas premium y estilos de la UI.
 """
 
+import os
+import tkinter as tk
 from PIL import Image, ImageDraw, ImageFont
 import customtkinter as ctk
 from src.config import (
@@ -75,3 +77,105 @@ def create_default_placeholder_image():
         draw.text((35, center_y + 16), text, fill=COLOR_TEXT_MAIN)
 
     return ctk.CTkImage(light_image=img, dark_image=img, size=(width, height))
+
+
+def attach_context_menu(widget):
+    """
+    Agrega un menú contextual con clic derecho (Cortar, Copiar, Pegar, Seleccionar Todo)
+    a campos de entrada (CTkEntry, CTkTextbox, etc.).
+    """
+    menu = tk.Menu(
+        widget,
+        tearoff=0,
+        bg=COLOR_BG_CARD,
+        fg=COLOR_TEXT_MAIN,
+        activebackground=COLOR_ACCENT,
+        activeforeground="#FFFFFF",
+        relief="flat",
+        borderwidth=1,
+        font=("Segoe UI", 10)
+    )
+
+    def do_cut():
+        try:
+            widget.event_generate("<<Cut>>")
+        except Exception:
+            pass
+
+    def do_copy():
+        try:
+            widget.event_generate("<<Copy>>")
+        except Exception:
+            pass
+
+    def do_paste():
+        try:
+            widget.event_generate("<<Paste>>")
+        except Exception:
+            pass
+
+    def do_select_all():
+        try:
+            widget.select_range(0, 'end')
+            widget.icursor('end')
+        except Exception:
+            try:
+                widget.event_generate("<<SelectAll>>")
+            except Exception:
+                pass
+
+    menu.add_command(label="Cortar", command=do_cut)
+    menu.add_command(label="Copiar", command=do_copy)
+    menu.add_command(label="Pegar", command=do_paste)
+    menu.add_separator()
+    menu.add_command(label="Seleccionar todo", command=do_select_all)
+
+    def show_popup(event):
+        try:
+            if hasattr(widget, "cget") and widget.cget("state") == "disabled":
+                return
+        except Exception:
+            pass
+        try:
+            menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            menu.grab_release()
+
+    widget.bind("<Button-3>", show_popup)
+
+
+def setup_app_icon(window, app_dir):
+    """
+    Genera dinámicamente un ícono .ico elegante con PIL (si no existe) y lo aplica a la ventana principal.
+    """
+    try:
+        icon_path = os.path.join(app_dir, "icon.ico")
+        if not os.path.exists(icon_path):
+            size = 256
+            img = Image.new("RGBA", (size, size), color=(0, 0, 0, 0))
+            draw = ImageDraw.Draw(img)
+
+            # Fondo con bordes redondeados en Azul Abismal e interior Verde Esmeralda/Oro
+            draw.rounded_rectangle([10, 10, size - 10, size - 10], radius=50, fill=COLOR_BG_MAIN, outline=COLOR_GOLD, width=8)
+            draw.rounded_rectangle([30, 30, size - 30, size - 30], radius=35, outline=COLOR_ACCENT, width=6)
+
+            # Triángulo (Play) de video centrado
+            center = size // 2
+            tri_size = 50
+            triangle = [
+                (center - tri_size + 15, center - tri_size),
+                (center - tri_size + 15, center + tri_size),
+                (center + tri_size + 18, center)
+            ]
+            draw.polygon(triangle, fill=COLOR_ACCENT, outline=COLOR_GOLD)
+
+            img.save(icon_path, format="ICO", sizes=[(256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])
+
+        if os.path.exists(icon_path):
+            try:
+                window.iconbitmap(icon_path)
+            except Exception:
+                pass
+    except Exception as e:
+        print(f"[Icon Setup Error] {e}")
+
