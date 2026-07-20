@@ -72,7 +72,22 @@ class VideoDownloader:
                 err_msg = err_msg.replace("ERROR:", "").strip()
             raise Exception(err_msg)
 
-        data = json.loads(proc.stdout)
+        try:
+            data = json.loads(proc.stdout)
+        except Exception:
+            data = None
+            if proc.stdout:
+                for line in proc.stdout.splitlines():
+                    line_str = line.strip()
+                    if line_str.startswith("{") and line_str.endswith("}"):
+                        try:
+                            data = json.loads(line_str)
+                            break
+                        except Exception:
+                            pass
+            if not data:
+                raise Exception("No se pudo procesar la respuesta JSON de yt-dlp.")
+
         title = data.get("title", "Título desconocido")
         thumbnail_url = data.get("thumbnail")
 
@@ -186,7 +201,7 @@ class VideoDownloader:
         args.append("--newline")
 
         is_gallery_platform = False
-        for pattern in [r"instagram\.com", r"twitter\.com", r"x\.com"]:
+        for pattern in [r"instagram\.com", r"twitter\.com", r"x\.com", r"tiktok\.com", r"reddit\.com", r"pinterest\.com"]:
             if re.search(pattern, url, re.IGNORECASE):
                 is_gallery_platform = True
                 break

@@ -646,7 +646,7 @@ class DownloaderApp(ctk.CTk):
         try:
             text = get_clipboard_text(self.url_entry).strip()
             if not text:
-                show_app_notification(self, "No se encontró texto en el portapapeles para pegar.", error=True)
+                show_app_notification(self, "Aviso", "No se encontró texto en el portapapeles para pegar.", notif_type="warning")
                 return
 
             self.url_entry.delete(0, 'end')
@@ -659,7 +659,7 @@ class DownloaderApp(ctk.CTk):
             except Exception:
                 pass
         except Exception as e:
-            show_app_notification(self, f"Error al pegar desde el portapapeles: {e}", error=True)
+            show_app_notification(self, "Error de Pegado", f"Error al pegar desde el portapapeles:\n{e}", notif_type="error")
 
     def trigger_preview_load(self):
         """Inicia la carga de metadatos del video en segundo plano (debounced)."""
@@ -760,6 +760,9 @@ class DownloaderApp(ctk.CTk):
             self.ui_after(0, lambda: self.status_lbl.configure(text="Descargando dependencias iniciales en segundo plano...", text_color=COLOR_YELLOW))
             self.ui_after(0, lambda: self.download_btn.configure(state="disabled", fg_color="#374151"))
             self.ui_after(0, lambda: self.update_btn.configure(state="disabled"))
+            self.ui_after(0, lambda: self.url_entry.configure(state="disabled"))
+            self.ui_after(0, lambda: self.paste_btn.configure(state="disabled"))
+            self.ui_after(0, lambda: self.clear_btn.configure(state="disabled"))
 
             try:
                 if not ok:
@@ -799,6 +802,7 @@ class DownloaderApp(ctk.CTk):
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
         self.reset_ui_controls()
+        self.update_local_version_label()
         self.status_lbl.configure(text="Error al instalar dependencias iniciales.", text_color=COLOR_RED)
         show_app_notification(self, "Error de Inicio", f"No se pudieron descargar los binarios requeridos:\n{str(error)}", notif_type="error")
 
@@ -849,6 +853,9 @@ class DownloaderApp(ctk.CTk):
         self.is_updating = True
         self.update_btn.configure(state="disabled", text="Actualizando...")
         self.download_btn.configure(state="disabled", fg_color="#374151")
+        self.url_entry.configure(state="disabled")
+        self.paste_btn.configure(state="disabled")
+        self.clear_btn.configure(state="disabled")
         self.motor_version_lbl.configure(text="Conectando...", text_color=COLOR_YELLOW)
 
         threading.Thread(target=self.perform_engine_update, daemon=True).start()
@@ -928,7 +935,7 @@ class DownloaderApp(ctk.CTk):
             hover_color="#DC2626"
         )
 
-        # Deshabilitar controles de opciones
+        # Deshabilitar controles de opciones y entrada
         self.update_btn.configure(state="disabled")
         self.browse_btn.configure(state="disabled")
         self.quality_menu.configure(state="disabled")
@@ -936,6 +943,9 @@ class DownloaderApp(ctk.CTk):
         self.cookies_chk.configure(state="disabled")
         self.cookies_btn.configure(state="disabled")
         self.browser_menu.configure(state="disabled")
+        self.url_entry.configure(state="disabled")
+        self.paste_btn.configure(state="disabled")
+        self.clear_btn.configure(state="disabled")
 
         self.progressbar.set(0)
         self.progress_lbl.configure(text="0%")
@@ -981,6 +991,9 @@ class DownloaderApp(ctk.CTk):
         self.format_menu.configure(state="normal")
         self.cookies_chk.configure(state="normal")
         self.browser_menu.configure(state="normal")
+        self.url_entry.configure(state="normal")
+        self.paste_btn.configure(state="normal")
+        self.clear_btn.configure(state="normal")
         self.status_lbl.configure(text_color=COLOR_TEXT_MUTED)
         if self.use_cookies.get():
             self.cookies_btn.configure(state="normal")

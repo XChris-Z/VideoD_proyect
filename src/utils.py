@@ -80,5 +80,11 @@ def download_file_with_progress(url, dest_path, component_name, progress_callbac
                 progress_callback(percent, downloaded, total_size, component_name)
 
     if os.path.exists(dest_path):
-        os.remove(dest_path)
-    os.rename(temp_dest, dest_path)
+        try:
+            os.remove(dest_path)
+        except OSError as e:
+            raise Exception(f"No se puede reemplazar '{os.path.basename(dest_path)}' porque está en uso por otra aplicación o descarga activa.") from e
+    try:
+        os.rename(temp_dest, dest_path)
+    except OSError as e:
+        raise Exception(f"Error al renombrar el archivo temporal a '{os.path.basename(dest_path)}': {e}") from e

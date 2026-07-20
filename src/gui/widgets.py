@@ -139,7 +139,13 @@ def get_clipboard_text(widget):
                         text_bytes = ctypes.c_char_p(ptr).value
                         kernel32.GlobalUnlock(h_clip)
                         if text_bytes:
-                            return text_bytes.decode('utf-8', errors='ignore')
+                            try:
+                                return text_bytes.decode('utf-8')
+                            except Exception:
+                                try:
+                                    return text_bytes.decode('mbcs', errors='ignore')
+                                except Exception:
+                                    return text_bytes.decode('latin-1', errors='ignore')
         finally:
             user32.CloseClipboard()
     except Exception:
@@ -379,8 +385,11 @@ def show_app_notification(window, title, message, notif_type="info"):
         elif notif_type == "error":
             accent_color = "#EF4444"  # Rojo vibrante
             icon_str = "✖"
+        elif notif_type == "warning":
+            accent_color = COLOR_GOLD  # Dorado / Advertencia
+            icon_str = "⚠"
         else:
-            accent_color = COLOR_GOLD  # Dorado / Advertencia / Info
+            accent_color = COLOR_GOLD  # Dorado / Info
             icon_str = "ℹ"
 
         card = ctk.CTkFrame(notif, fg_color=COLOR_BG_CARD, border_color=accent_color, border_width=2, corner_radius=12)
