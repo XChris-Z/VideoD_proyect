@@ -1,0 +1,27 @@
+# Binarios pesados de yt-dlp y ffmpeg (134 MB+) - Se descargan automáticamente al ejecutar el programa
+*.exe
+*.zip
+*.tar.gz
+*.tmp
+cookies.txt
+
+# Byte-compiled / optimizados Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller y compilaciones del sistema
+build/
+dist/
+*.spec.bak
+
+# Entornos virtuales
+venv/
+env/
+.env
+
+# Archivos de SO y editores
+.VSCode/
+.idea/
+*.DS_Store
+Thumbs.db
