@@ -35,7 +35,7 @@ from src.engine import (
     check_ffmpeg_available
 )
 from src.downloader import VideoDownloader
-from src.gui.widgets import create_default_placeholder_image, attach_context_menu, setup_app_icon
+from src.gui.widgets import create_default_placeholder_image, attach_context_menu, setup_app_icon, show_app_notification
 
 
 class DownloaderApp(ctk.CTk):
@@ -758,7 +758,7 @@ class DownloaderApp(ctk.CTk):
         self.progress_lbl.configure(text="")
         self.reset_ui_controls()
         self.status_lbl.configure(text="Error al instalar dependencias iniciales.", text_color=COLOR_RED)
-        messagebox.showerror("Error de Inicio", f"No se pudieron descargar los binarios requeridos:\n{str(error)}")
+        show_app_notification(self, "Error de Inicio", f"No se pudieron descargar los binarios requeridos:\n{str(error)}", notif_type="error")
 
     def update_local_version_label(self):
         """Verifica los binarios locales y actualiza las etiquetas de motor."""
@@ -833,7 +833,7 @@ class DownloaderApp(ctk.CTk):
 
         if self.update_local_version_label():
             self.status_lbl.configure(text="Componentes actualizados con éxito.", text_color=COLOR_GREEN)
-            messagebox.showinfo("Éxito", "El motor yt-dlp y FFmpeg han sido descargados e instalados correctamente.")
+            show_app_notification(self, "Éxito", "El motor yt-dlp y FFmpeg han sido descargados e instalados correctamente.", notif_type="success")
             self.check_ffmpeg_and_warn()
         else:
             self.status_lbl.configure(text="Error al verificar componentes.", text_color=COLOR_RED)
@@ -858,7 +858,7 @@ class DownloaderApp(ctk.CTk):
 
         self.update_local_version_label()
         self.status_lbl.configure(text="Fallo al descargar componentes.", text_color=COLOR_RED)
-        messagebox.showerror("Error de Actualización", f"Ocurrió un error al actualizar los componentes:\n{str(error)}")
+        show_app_notification(self, "Error de Actualización", f"Ocurrió un error al actualizar los componentes:\n{str(error)}", notif_type="error")
 
     # --- CONTROL DE DESCARGA DE VIDEOS ---
     def start_download(self):
@@ -869,14 +869,14 @@ class DownloaderApp(ctk.CTk):
 
         url = self.url_entry.get().strip()
         if not url:
-            messagebox.showwarning("Falta Enlace", "Por favor, ingresa una URL válida antes de descargar.")
+            show_app_notification(self, "Falta Enlace", "Por favor, ingresa una URL válida antes de descargar.", notif_type="warning")
             return
 
         if self.is_updating:
             return
 
         if not os.path.exists(get_ytdlp_bin()):
-            messagebox.showerror("Falta Motor", "El motor yt-dlp no está instalado.\nHaz clic en 'Actualizar Motor' para descargarlo.")
+            show_app_notification(self, "Falta Motor", "El motor yt-dlp no está instalado.\nHaz clic en 'Actualizar Motor' para descargarlo.", notif_type="error")
             return
 
         # Cambiar el botón principal a estado CANCELAR (Rojo Secundario)
@@ -964,7 +964,7 @@ class DownloaderApp(ctk.CTk):
         self.progressbar.set(1.0)
         self.progress_lbl.configure(text="100%")
         self.status_lbl.configure(text="Descarga completada con éxito.", text_color=COLOR_GREEN)
-        messagebox.showinfo("Descarga Exitosa", "El archivo se ha descargado y guardado correctamente en la ruta seleccionada.")
+        show_app_notification(self, "Descarga Completada", "El archivo se ha descargado y guardado correctamente en la ruta seleccionada.", notif_type="success")
 
     def on_download_canceled(self):
         """Maneja la cancelación de la descarga por parte del usuario."""
@@ -972,7 +972,7 @@ class DownloaderApp(ctk.CTk):
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
         self.status_lbl.configure(text="Descarga cancelada por el usuario.", text_color=COLOR_RED)
-        messagebox.showinfo("Cancelado", "La descarga ha sido cancelada.")
+        show_app_notification(self, "Cancelado", "La descarga ha sido cancelada.", notif_type="warning")
 
     def on_download_error(self, error_message):
         """Maneja un error durante la descarga del video."""
@@ -987,7 +987,7 @@ class DownloaderApp(ctk.CTk):
         else:
             msg = f"No se pudo completar la descarga.\nDetalle:\n{error_message}"
 
-        messagebox.showerror("Error en Descarga", msg)
+        show_app_notification(self, "Error en Descarga", msg, notif_type="error")
 
     def on_closing(self):
         """Pide confirmación si hay un proceso activo antes de cerrar la ventana."""

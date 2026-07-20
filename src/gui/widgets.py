@@ -179,3 +179,70 @@ def setup_app_icon(window, app_dir):
     except Exception as e:
         print(f"[Icon Setup Error] {e}")
 
+
+def show_app_notification(window, title, message, notif_type="info"):
+    """
+    Muestra un cuadro de notificación modal premium e insonoro (sin ruido de Windows)
+    dentro de la misma estética de la aplicación.
+    """
+    try:
+        notif = ctk.CTkToplevel(window)
+        notif.title(title)
+        notif.resizable(False, False)
+        notif.configure(fg_color=COLOR_BG_MAIN)
+        notif.transient(window)
+        notif.grab_set()
+
+        if notif_type == "success":
+            accent_color = "#10B981"  # Verde esmeralda brillante
+            icon_str = "✔"
+        elif notif_type == "error":
+            accent_color = "#EF4444"  # Rojo vibrante
+            icon_str = "✖"
+        else:
+            accent_color = COLOR_GOLD  # Dorado / Advertencia / Info
+            icon_str = "ℹ"
+
+        card = ctk.CTkFrame(notif, fg_color=COLOR_BG_CARD, border_color=accent_color, border_width=2, corner_radius=12)
+        card.pack(fill="both", expand=True, padx=15, pady=15)
+
+        header_frame = ctk.CTkFrame(card, fg_color="transparent")
+        header_frame.pack(fill="x", padx=15, pady=(15, 5))
+
+        icon_lbl = ctk.CTkLabel(header_frame, text=icon_str, font=ctk.CTkFont(family="Segoe UI", size=22, weight="bold"), text_color=accent_color)
+        icon_lbl.pack(side="left", padx=(0, 10))
+
+        title_lbl = ctk.CTkLabel(header_frame, text=title, font=ctk.CTkFont(family="Segoe UI", size=16, weight="bold"), text_color=COLOR_TEXT_MAIN)
+        title_lbl.pack(side="left")
+
+        msg_lbl = ctk.CTkLabel(card, text=message, font=ctk.CTkFont(family="Segoe UI", size=13), text_color=COLOR_TEXT_MUTED, wraplength=380, justify="left")
+        msg_lbl.pack(fill="both", expand=True, padx=20, pady=10)
+
+        ok_btn = ctk.CTkButton(
+            card,
+            text="ACEPTAR",
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+            width=130,
+            height=34,
+            fg_color=accent_color,
+            hover_color=accent_color,
+            text_color="#FFFFFF" if notif_type in ["error", "success"] else COLOR_TEXT_MAIN,
+            corner_radius=8,
+            command=notif.destroy
+        )
+        ok_btn.pack(pady=(5, 15))
+
+        try:
+            window.update_idletasks()
+            notif.update_idletasks()
+            w = notif.winfo_reqwidth()
+            h = notif.winfo_reqheight()
+            x = window.winfo_x() + (window.winfo_width() // 2) - (w // 2)
+            y = window.winfo_y() + (window.winfo_height() // 2) - (h // 2)
+            notif.geometry(f"{w}x{h}+{x}+{y}")
+        except Exception:
+            notif.geometry("440x220")
+    except Exception as e:
+        print(f"[Notification Error] {e}")
+
+
