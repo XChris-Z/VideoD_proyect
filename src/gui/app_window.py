@@ -475,30 +475,21 @@ class DownloaderApp(ctk.CTk):
         )
         self.download_btn.grid(row=7, column=0, pady=(10, 15))
 
-        # Panel de Barra de Progreso y Estado (Fila 8)
+        # Panel de Barra de Progreso y Dashboard Estadístico (Fila 8)
         self.progress_container = ctk.CTkFrame(self.card_frame, fg_color="transparent")
         self.progress_container.grid(row=8, column=0, sticky="ew", padx=25, pady=(0, 15))
         self.progress_container.grid_columnconfigure(0, weight=1)
 
-        self.progressbar = ctk.CTkProgressBar(
-            self.progress_container,
-            fg_color=COLOR_BG_MAIN,
-            progress_color=COLOR_GOLD,  # Barra dorada sobre fondo azul oscuro
-            height=10,
-            corner_radius=5
-        )
-        self.progressbar.grid(row=0, column=0, sticky="ew", pady=(0, 8))
-        self.progressbar.set(0)
-
+        # 1. Encabezado de estado de la descarga (Superior)
         self.status_detail_frame = ctk.CTkFrame(self.progress_container, fg_color="transparent")
-        self.status_detail_frame.grid(row=1, column=0, sticky="ew")
+        self.status_detail_frame.grid(row=0, column=0, sticky="ew", pady=(0, 6))
         self.status_detail_frame.grid_columnconfigure(0, weight=1)
-        self.status_detail_frame.grid_columnconfigure(1, weight=1)
+        self.status_detail_frame.grid_columnconfigure(1, weight=0)
 
         self.status_lbl = ctk.CTkLabel(
             self.status_detail_frame,
             text="Listo para descargar",
-            font=ctk.CTkFont(family=FONT_FAMILY, size=12),
+            font=ctk.CTkFont(family=FONT_FAMILY, size=13, weight="bold"),
             text_color=COLOR_TEXT_MUTED
         )
         self.status_lbl.grid(row=0, column=0, sticky="w")
@@ -506,10 +497,111 @@ class DownloaderApp(ctk.CTk):
         self.progress_lbl = ctk.CTkLabel(
             self.status_detail_frame,
             text="",
-            font=ctk.CTkFont(family=FONT_FAMILY, size=12, weight="bold"),
-            text_color=COLOR_TEXT_MAIN
+            font=ctk.CTkFont(family=FONT_FAMILY, size=13, weight="bold"),
+            text_color=COLOR_GOLD
         )
         self.progress_lbl.grid(row=0, column=1, sticky="e")
+
+        # 2. Barra de Progreso estilizada (Dorado brillante sobre Azul marino profundo)
+        self.progressbar = ctk.CTkProgressBar(
+            self.progress_container,
+            fg_color=COLOR_BG_MAIN,
+            progress_color=COLOR_GOLD,
+            height=12,
+            corner_radius=6,
+            border_width=1,
+            border_color=COLOR_BORDER
+        )
+        self.progressbar.grid(row=1, column=0, sticky="ew", pady=(0, 12))
+        self.progressbar.set(0)
+
+        # 3. Tarjetas de Estadísticas en Tiempo Real (Tamaño, Porcentaje, Velocidad)
+        self.stats_cards_frame = ctk.CTkFrame(self.progress_container, fg_color="transparent")
+        self.stats_cards_frame.grid(row=2, column=0, sticky="ew")
+        self.stats_cards_frame.grid_columnconfigure(0, weight=1)
+        self.stats_cards_frame.grid_columnconfigure(1, weight=1)
+        self.stats_cards_frame.grid_columnconfigure(2, weight=1)
+
+        # --- Tarjeta 1: Tamaño ---
+        self.card_size = ctk.CTkFrame(
+            self.stats_cards_frame,
+            fg_color=COLOR_BG_MAIN,
+            border_color=COLOR_BORDER,
+            border_width=1,
+            corner_radius=10
+        )
+        self.card_size.grid(row=0, column=0, sticky="nsew", padx=(0, 6))
+        self.card_size.grid_columnconfigure(0, weight=1)
+
+        self.card_size_title = ctk.CTkLabel(
+            self.card_size,
+            text="📦  TAMAÑO",
+            font=ctk.CTkFont(family=FONT_FAMILY, size=11, weight="bold"),
+            text_color=COLOR_TEXT_MUTED
+        )
+        self.card_size_title.grid(row=0, column=0, sticky="w", padx=12, pady=(8, 2))
+
+        self.stat_size_lbl = ctk.CTkLabel(
+            self.card_size,
+            text="--",
+            font=ctk.CTkFont(family=FONT_FAMILY, size=16, weight="bold"),
+            text_color=COLOR_TEXT_MAIN
+        )
+        self.stat_size_lbl.grid(row=1, column=0, sticky="w", padx=12, pady=(0, 8))
+
+        # --- Tarjeta 2: Porcentaje ---
+        self.card_percent = ctk.CTkFrame(
+            self.stats_cards_frame,
+            fg_color=COLOR_BG_MAIN,
+            border_color=COLOR_BORDER,
+            border_width=1,
+            corner_radius=10
+        )
+        self.card_percent.grid(row=0, column=1, sticky="nsew", padx=6)
+        self.card_percent.grid_columnconfigure(0, weight=1)
+
+        self.card_percent_title = ctk.CTkLabel(
+            self.card_percent,
+            text="📊  PORCENTAJE",
+            font=ctk.CTkFont(family=FONT_FAMILY, size=11, weight="bold"),
+            text_color=COLOR_TEXT_MUTED
+        )
+        self.card_percent_title.grid(row=0, column=0, sticky="w", padx=12, pady=(8, 2))
+
+        self.stat_percent_lbl = ctk.CTkLabel(
+            self.card_percent,
+            text="0.0 %",
+            font=ctk.CTkFont(family=FONT_FAMILY, size=16, weight="bold"),
+            text_color=COLOR_GOLD
+        )
+        self.stat_percent_lbl.grid(row=1, column=0, sticky="w", padx=12, pady=(0, 8))
+
+        # --- Tarjeta 3: Velocidad ---
+        self.card_speed = ctk.CTkFrame(
+            self.stats_cards_frame,
+            fg_color=COLOR_BG_MAIN,
+            border_color=COLOR_BORDER,
+            border_width=1,
+            corner_radius=10
+        )
+        self.card_speed.grid(row=0, column=2, sticky="nsew", padx=(6, 0))
+        self.card_speed.grid_columnconfigure(0, weight=1)
+
+        self.card_speed_title = ctk.CTkLabel(
+            self.card_speed,
+            text="⚡  VELOCIDAD",
+            font=ctk.CTkFont(family=FONT_FAMILY, size=11, weight="bold"),
+            text_color=COLOR_TEXT_MUTED
+        )
+        self.card_speed_title.grid(row=0, column=0, sticky="w", padx=12, pady=(8, 2))
+
+        self.stat_speed_lbl = ctk.CTkLabel(
+            self.card_speed,
+            text="--",
+            font=ctk.CTkFont(family=FONT_FAMILY, size=16, weight="bold"),
+            text_color=COLOR_GREEN
+        )
+        self.stat_speed_lbl.grid(row=1, column=0, sticky="w", padx=12, pady=(0, 8))
 
         # ----------------------------------------------------
         # 3. PANEL DE ACTUALIZACIÓN (Footer Frame)
@@ -787,11 +879,15 @@ class DownloaderApp(ctk.CTk):
         mb_tot = total / (1024 * 1024)
         self.ui_after(0, lambda p=percent: self.progress_lbl.configure(text=f"{p*100:.1f}%"))
         self.ui_after(0, lambda: self.status_lbl.configure(text=f"Descargando {name}: {mb_dl:.1f} MB de {mb_tot:.1f} MB", text_color=COLOR_YELLOW))
+        self.ui_after(0, lambda p=percent: self.stat_percent_lbl.configure(text=f"{p*100:.1f} %"))
+        self.ui_after(0, lambda: self.stat_size_lbl.configure(text=f"{mb_dl:.1f} / {mb_tot:.1f} MB"))
+        self.ui_after(0, lambda: self.stat_speed_lbl.configure(text="Activo"))
 
     def on_dependencies_install_success(self):
         """Callback ejecutado al instalar dependencias con éxito."""
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
+        self.reset_stats_cards()
         self.update_local_version_label()
         self.reset_ui_controls()
         self.status_lbl.configure(text="Dependencias instaladas y listas.", text_color=COLOR_GREEN)
@@ -801,6 +897,7 @@ class DownloaderApp(ctk.CTk):
         """Callback al ocurrir un error durante la descarga de dependencias."""
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
+        self.reset_stats_cards()
         self.reset_ui_controls()
         self.update_local_version_label()
         self.status_lbl.configure(text="Error al instalar dependencias iniciales.", text_color=COLOR_RED)
@@ -879,6 +976,7 @@ class DownloaderApp(ctk.CTk):
         self.update_btn.configure(state="normal", text="Actualizar Motor")
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
+        self.reset_stats_cards()
 
         if self.update_local_version_label():
             self.status_lbl.configure(text="Componentes actualizados con éxito.", text_color=COLOR_GREEN)
@@ -893,6 +991,7 @@ class DownloaderApp(ctk.CTk):
         self.update_btn.configure(state="normal", text="Actualizar Motor")
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
+        self.reset_stats_cards()
 
         # Limpiar temporales
         for p in [get_ytdlp_bin(), get_ffmpeg_bin()]:
@@ -949,6 +1048,9 @@ class DownloaderApp(ctk.CTk):
 
         self.progressbar.set(0)
         self.progress_lbl.configure(text="0%")
+        self.stat_percent_lbl.configure(text="0.0 %")
+        self.stat_size_lbl.configure(text="Calculando...")
+        self.stat_speed_lbl.configure(text="Conectando...")
         self.status_lbl.configure(text="Analizando enlace...", text_color=COLOR_GOLD)
 
         dest_dir = self.download_path.get()
@@ -1000,25 +1102,43 @@ class DownloaderApp(ctk.CTk):
         else:
             self.cookies_btn.configure(state="disabled")
 
+    def reset_stats_cards(self):
+        """Restablece los textos de las tarjetas de estadísticas a su estado de reposo."""
+        self.stat_size_lbl.configure(text="--")
+        self.stat_percent_lbl.configure(text="0.0 %")
+        self.stat_speed_lbl.configure(text="--")
+
     def update_download_progress(self, percent, size, speed, eta, status="Descargando..."):
-        """Actualiza la barra de progreso dorada y el texto informativo."""
+        """Actualiza en tiempo real las tarjetas de estadísticas, la barra de progreso dorada y el estado."""
         self.progressbar.set(percent / 100.0)
         self.progress_lbl.configure(text=f"{percent:.1f}%")
+
+        # Formatear visualmente el tamaño y la velocidad (ej. ~99.24MiB -> ≈ 99.24 MiB)
+        clean_size = re.sub(r'([0-9\.]+)([a-zA-Z]+)', r'\1 \2', str(size)).replace("~", "≈ ")
+        clean_speed = re.sub(r'([0-9\.]+)([a-zA-Z]+/s)', r'\1 \2', str(speed)).replace("~", "≈ ")
+
+        self.stat_size_lbl.configure(text=clean_size)
+        self.stat_percent_lbl.configure(text=f"{percent:.1f} %")
+        self.stat_speed_lbl.configure(text=clean_speed)
+
+        status_clean = status if status else "Descargando video en tiempo real..."
         self.status_lbl.configure(
-            text=f"{status} | Tamaño: {size} | Vel: {speed} | ETA: {eta}",
+            text=f"🟢 {status_clean}",
             text_color=COLOR_GOLD
         )
 
     def update_download_status_message(self, message):
         """Actualiza el texto de estado del subproceso."""
-        self.status_lbl.configure(text=message, text_color=COLOR_GOLD)
+        self.status_lbl.configure(text=f"ℹ️ {message}", text_color=COLOR_GOLD)
 
     def on_download_success(self):
         """Maneja el fin exitoso de la descarga."""
         self.reset_ui_controls()
         self.progressbar.set(1.0)
         self.progress_lbl.configure(text="100%")
-        self.status_lbl.configure(text="Descarga completada con éxito.", text_color=COLOR_GREEN)
+        self.stat_percent_lbl.configure(text="100 %")
+        self.stat_speed_lbl.configure(text="Completado")
+        self.status_lbl.configure(text="✅ Descarga completada con éxito.", text_color=COLOR_GREEN)
         show_app_notification(self, "Descarga Completada", "El archivo se ha descargado y guardado correctamente en la ruta seleccionada.", notif_type="success")
 
     def on_download_canceled(self):
@@ -1026,7 +1146,8 @@ class DownloaderApp(ctk.CTk):
         self.reset_ui_controls()
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
-        self.status_lbl.configure(text="Descarga cancelada por el usuario.", text_color=COLOR_RED)
+        self.reset_stats_cards()
+        self.status_lbl.configure(text="❌ Descarga cancelada por el usuario.", text_color=COLOR_RED)
         show_app_notification(self, "Cancelado", "La descarga ha sido cancelada.", notif_type="warning")
 
     def on_download_error(self, error_message):
@@ -1034,7 +1155,8 @@ class DownloaderApp(ctk.CTk):
         self.reset_ui_controls()
         self.progressbar.set(0)
         self.progress_lbl.configure(text="")
-        self.status_lbl.configure(text="Ocurrió un error en la descarga.", text_color=COLOR_RED)
+        self.reset_stats_cards()
+        self.status_lbl.configure(text="⚠️ Ocurrió un error en la descarga.", text_color=COLOR_RED)
 
         if "ffmpeg" in error_message.lower():
             msg = ("Se requiere 'ffmpeg' para esta descarga (fusión de pistas o conversión de formato).\n\n"
